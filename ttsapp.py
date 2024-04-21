@@ -15,7 +15,7 @@ user_input = st.text_area("Text")
 voice = st.selectbox("Choose your voice", ('alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'))
 
 # Define behavior upon clicking the "Generate audio" button
-if st.button('Generate audio, '):
+if st.button('Generate to listen and download'):
     # Check if both API key and text input are provided
     if user_input and api_key:
         # Prepare headers and data for the OpenAI API request
