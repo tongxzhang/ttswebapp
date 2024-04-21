@@ -5,6 +5,10 @@ import streamlit as st
 import requests
 from requests.exceptions import RequestException, HTTPError
 
+# Constants for API usage
+API_URL = 'https://api.openai.com/v1/audio/speech'
+VOICES = ('Alloy', 'Echo', 'Fable', 'Onyx', 'Nova', 'Shimmer')
+
 # Set up the Streamlit app title and input fields
 st.title('TTS with Tong')
 st.markdown("Please enter your OpenAI API key, text for speech synthesis, desired voice, then click to generate audio :)")
@@ -12,9 +16,9 @@ st.markdown("Please enter your OpenAI API key, text for speech synthesis, desire
 # Create input fields for API key, text, and voice selection
 api_key = st.text_input("OpenAI API key", type="password")
 user_input = st.text_area("Text")
-voice = st.selectbox("Choose your voice", ('alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'))
+voice = st.selectbox("Choose your voice", VOICES)
 
-# Define behavior upon clicking the "Generate audio" button
+# Define behaviour upon clicking the button to generate audio
 if st.button('Generate to listen and download'):
     # Check if both API key and text input are provided
     if user_input and api_key:
@@ -25,11 +29,11 @@ if st.button('Generate to listen and download'):
             'input': user_input,
             'voice': voice,
         }
-        
+
         try:
             # Send POST request to OpenAI API endpoint
-            response = requests.post('https://api.openai.com/v1/audio/speech', headers=headers, json=data)
-            response.raise_for_status()  # Raise an error if the HTTP request returns an unsuccessful status code.
+            response = requests.post(API_URL, headers=headers, json=data)
+            response.raise_for_status()  # Raise an error if the HTTP request returns an unsuccessful status code
             
             # Assuming that a successful response contains an audio file
             if response.status_code == 200:
@@ -51,5 +55,4 @@ if st.button('Generate to listen and download'):
         # Display error message if API key or text input is missing
         st.error("Please ensure you have entered an API key and text.")
 
-# Optional: Footer or additional information
 # st.markdown("Created by TZ © 2024")
