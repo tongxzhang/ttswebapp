@@ -51,7 +51,7 @@ def main():
     model_choice = st.radio("Choose between standard and HD quality", ('tts-1', 'tts-1-hd'))
 
     # Define behaviour upon clicking the button to generate audio
-    if st.button('Generate to listen and download'):
+    if st.button('Generate to play and download'):
         if user_input and api_key:
             # Call generate_audio(). Unpack tuple into two variables: success (True/False) and content_or_message
             # content_or_message captures either the audio data or error message depending on the outcome of the API request 
