@@ -44,11 +44,19 @@ def main():
 
     # Create input fields for API key, text, character counter, and voice selection
     api_key = st.text_input("OpenAI API key:", type="password")
+
     user_input = st.text_area("Text to be converted into speech:")
     character_counter = f"<span style='display: block; text-align: right; color: grey; font-size: 0.8em;'>Character count: {len(user_input)}</span>"
     st.markdown(character_counter, unsafe_allow_html=True)
+    
     voice = st.selectbox("Chosen voice:", VOICES)
-    model_choice = st.radio("Standard vs HD quality (0.015 vs 0.03 USD / 1000 characters):", ('tts-1', 'tts-1-hd'))
+    
+    # Define a dictionary to map friendly labels to API model identifiers
+    model_choices = {'Standard, for most use cases ($0.015/1000 characters)': 'tts-1', 'Studio quality high definition ($0.03/1000 characters)': 'tts-1-hd'}
+    # Update the Streamlit radio button for model choice to use the dictionary keys
+    model_label = st.radio("Chosen quality:", options=list(model_choices.keys()))
+    # Use the dictionary to get the corresponding model identifier in the API call
+    model_choice = model_choices[model_label]
 
     # Define behaviour upon clicking the button to generate audio
     if st.button('Generate to play and download'):
@@ -74,5 +82,5 @@ def main():
 if __name__ == "__main__":
     main()  # Call the main function to execute primary functionality of the script
 
-# st.markdown("Created by TZ © 2024")
+# st.markdown("Created by Tong Zhang © 2024")
 # streamlit run ttsapp.py # Run locally
