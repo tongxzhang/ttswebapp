@@ -11,11 +11,11 @@ VOICES = ('alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer')
 
 # Function to manage OpenAI API requests, exception handling, and audio or error message generation
 # Returns a tuple (success, content_or_message). success: boolean indicating success of API call. content_or_message: audio content if successful, error message if not.
-def generate_audio(api_key, text, voice):
+def generate_audio(api_key, text, voice, model):
     # Prepare headers and data for the OpenAI API request
     headers = {'Authorization': f'Bearer {api_key}'}
     data = {
-        'model': 'tts-1', 
+        'model': model, 
         'input': text,
         'voice': voice,
     }
@@ -42,17 +42,20 @@ def main():
     st.title('TTS with Tong')
     st.markdown("Please enter your OpenAI API key, text for speech synthesis, <a href='https://platform.openai.com/docs/guides/text-to-speech/voice-options' target='_blank'>desired voice</a>, then click to generate audio :)", unsafe_allow_html=True)
 
-    # Create input fields for API key, text, and voice selection
+    # Create input fields for API key, text, character counter, and voice selection
     api_key = st.text_input("OpenAI API key", type="password")
     user_input = st.text_area("Text")
+    character_counter = f"<span style='display: block; text-align: right; color: grey; font-size: 0.8em;'>Character count: {len(user_input)}</span>"
+    st.markdown(character_counter, unsafe_allow_html=True)
     voice = st.selectbox("Choose your voice", VOICES)
+    model_choice = st.radio("Choose between standard and HD quality", ('tts-1', 'tts-1-hd'))
 
     # Define behaviour upon clicking the button to generate audio
     if st.button('Generate to listen and download'):
         if user_input and api_key:
             # Call generate_audio(). Unpack tuple into two variables: success (True/False) and content_or_message
             # content_or_message captures either the audio data or error message depending on the outcome of the API request 
-            success, content_or_message = generate_audio(api_key, user_input, voice)
+            success, content_or_message = generate_audio(api_key, user_input, voice, model_choice)
             if success:
                 # Play audio content directly in the app
                 st.audio(content_or_message, format='audio/mpeg')
