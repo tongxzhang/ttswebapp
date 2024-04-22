@@ -43,12 +43,12 @@ def main():
     st.markdown("Please enter your OpenAI API key, text for speech synthesis, <a href='https://platform.openai.com/docs/guides/text-to-speech/voice-options' target='_blank'>desired voice</a>, then click to generate audio :)", unsafe_allow_html=True)
 
     # Create input fields for API key, text, character counter, and voice selection
-    api_key = st.text_input("OpenAI API key", type="password")
-    user_input = st.text_area("Text")
+    api_key = st.text_input("OpenAI API key:", type="password")
+    user_input = st.text_area("Text to be converted into speech:")
     character_counter = f"<span style='display: block; text-align: right; color: grey; font-size: 0.8em;'>Character count: {len(user_input)}</span>"
     st.markdown(character_counter, unsafe_allow_html=True)
-    voice = st.selectbox("Choose your voice", VOICES)
-    model_choice = st.radio("Choose between standard and HD quality", ('tts-1', 'tts-1-hd'))
+    voice = st.selectbox("Chosen voice:", VOICES)
+    model_choice = st.radio("Standard vs HD quality (0.015 vs 0.03 USD / 1000 characters):", ('tts-1', 'tts-1-hd'))
 
     # Define behaviour upon clicking the button to generate audio
     if st.button('Generate to play and download'):
