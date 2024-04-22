@@ -40,7 +40,7 @@ def generate_audio(api_key, text, voice):
 def main():
     # Set up the Streamlit app title and input fields
     st.title('TTS with Tong')
-    st.markdown("Please enter your OpenAI API key, text for speech synthesis, desired voice, then click to generate audio :)")
+    st.markdown("Please enter your OpenAI API key, text for speech synthesis, <a href='https://platform.openai.com/docs/guides/text-to-speech/voice-options' target='_blank'>desired voice</a>, then click to generate audio :)", unsafe_allow_html=True)
 
     # Create input fields for API key, text, and voice selection
     api_key = st.text_input("OpenAI API key", type="password")
@@ -48,20 +48,23 @@ def main():
     voice = st.selectbox("Choose your voice", VOICES)
 
     # Define behaviour upon clicking the button to generate audio
-    if st.button('Generate to listen and download') and user_input and api_key:
-        # Call generate_audio(). Unpack tuple into two variables: success (True/False) and content_or_message
-        # content_or_message captures either the audio data or error message depending on the outcome of the API request 
-        success, content_or_message = generate_audio(api_key, user_input, voice)
-        if success:
-            # Play audio content directly in the app
-            st.audio(content_or_message, format='audio/mpeg')
+    if st.button('Generate to listen and download'):
+        if user_input and api_key:
+            # Call generate_audio(). Unpack tuple into two variables: success (True/False) and content_or_message
+            # content_or_message captures either the audio data or error message depending on the outcome of the API request 
+            success, content_or_message = generate_audio(api_key, user_input, voice)
+            if success:
+                # Play audio content directly in the app
+                st.audio(content_or_message, format='audio/mpeg')
+            else:
+                # Display error message if speech generation fails
+                st.error(content_or_message)
         else:
-            # Display error message if speech generation fails
-            st.error(content_or_message)
-    else:
-        if not api_key or not user_input:
             # Display error message if API key or text input is missing
             st.error("Please ensure you have entered an API key and text.")
+    else:
+        # Placeholder for any additional instructions or UI elements when the button has not been clicked
+        pass
 
 # Note: This conditional checks if this script is being run directly by Python or being imported as a module into another script
 # Commonly used to place script execution code (tests, command-line processing) which should only occur when the script is not being imported as a module elsewhere
