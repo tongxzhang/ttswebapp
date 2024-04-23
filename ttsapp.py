@@ -4,6 +4,9 @@
 import streamlit as st
 import requests
 from requests.exceptions import RequestException, HTTPError
+# [WIP for pydub and io]
+# from pydub import AudioSegment # Handle audio operations
+# import io # Handle in-memory audio files
 
 # Constants for API usage
 API_URL = 'https://api.openai.com/v1/audio/speech'
@@ -11,7 +14,7 @@ VOICES = ('alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer')
 
 # Function to manage OpenAI API requests, exception handling, and audio or error message generation
 # Returns a tuple (success, content_or_message). success: boolean indicating success of API call. content_or_message: audio content if successful, error message if not.
-def generate_audio(api_key, text, voice, model):
+def generate_audio(api_key, text, voice, model): 
     # Prepare headers and data for the OpenAI API request
     headers = {'Authorization': f'Bearer {api_key}'}
     data = {
@@ -22,19 +25,41 @@ def generate_audio(api_key, text, voice, model):
     try:
         # Send POST request to OpenAI API endpoint
         response = requests.post(API_URL, headers=headers, json=data)
-        # Raise an error if the HTTP request returns an unsuccessful status code
-        response.raise_for_status()
-        # success=True, return audio content from successful request
-        return True, response.content
-    except HTTPError: 
-        # success=False, return error message from successful request
-        return False, "Failed to generate due to a server error. Please check your API key and try again." # User-friendly error message
-    except RequestException: 
-        # Handle other request-related errors
-        return False, "Failed to generate due to a network error. Please check your connection and try again."
-    except Exception as e: 
-        # Handle unexpected errors
-        return False, "An unexpected error occurred. Please try again later."
+        response.raise_for_status() # Raise an error if the HTTP request returns an unsuccessful status code
+        return True, response.content # success=True, return audio content from successful request
+    except HTTPError:
+        return False, "Failed to generate due to a server error. Please check your API key and try again." # success=False, return error message from successful request
+    except RequestException:
+        return False, "Failed to generate due to a network error. Please check your connection and try again." # Handle other request-related errors
+    except Exception as e:
+        return False, "An unexpected error occurred. Please try again later." # Handle unexpected errors
+
+# # [WIP] Function to split text above the 4096 API character limit into chunks
+# def split_text_by_limit(text, limit=4096):
+#     words = text.split()
+#     # Initialise empty lists
+#     text_chunks = []
+#     current_text_chunk = []
+#     current_length = 0
+
+#     for word in words:
+#         if current_length + len(word) + 1 > limit:
+#             text_chunks.append(' '.join(current_text_chunk))
+#             current_text_chunk = [word]
+#             current_length = len(word)
+#         else:
+#             current_text_chunk.append(word)
+#             current_length += len(word) + 1 # +1 for space
+    
+#     text_chunks.append(' '.join(current_text_chunk)) # add the last chunk
+#     return text_chunks
+
+# # [WIP] Function to concatenate audio segments
+# def concatenate_audio_segments(audio_segments):
+#     combined = AudioSegment.empty()
+#     for segment in audio_segments:
+#         combined += segment
+#     return combined
 
 # Main function to run the Streamlit app, setting up the UI and managing user interactions
 def main():
@@ -85,21 +110,49 @@ def main():
     # Define behaviour upon clicking the button to generate audio
     if st.button('Generate to play and download'):
         if user_input and api_key:
-            # Call generate_audio(). Unpack tuple into two variables: success (True/False) and content_or_message
-            # content_or_message captures either the audio data or error message depending on the outcome of the API request 
-            success, content_or_message = generate_audio(api_key, user_input, voice, model_choice)
-            if success:
-                # Play audio content directly in the app
-                st.audio(content_or_message, format='audio/mpeg')
+            # Check if the text exceeds the limit and split if necessary
+            # Case 1 (simple) where user input does not exceed API character limit 
+            if len(user_input) <= 4096:
+                # Call generate_audio(). Unpack tuple into two variables: success (True/False) and content_or_message
+                # 'content_or_message' captures either the audio data or error message depending on the outcome of the API request 
+                success, content_or_message = generate_audio(api_key, user_input, voice, model_choice)
+                if success:
+                    st.audio(content_or_message, format='audio/mpeg') # Play audio content directly in the app
+                else:
+                    st.error(content_or_message) # Display error message if speech generation fails
+            
+            # Case 2 where user input exceeds API character limit 
             else:
-                # Display error message if speech generation fails
-                st.error(content_or_message)
+                st.error("At this stage OpenAI's API only supports up to 4096 characters. We're currently working on a solution.")
+                # # [WIP] Split the user input text into manageable chunks that do not exceed the API character limit
+                # text_chunks = split_text_by_limit(user_input)
+                # audio_segments = []
+
+                # # Iterate over each chunk of text
+                # for chunk in text_chunks:
+                #     # Attempt to generate audio for the current chunk of text using the OpenAI API
+                #     success, content_or_message = generate_audio(api_key, chunk, voice, model_choice)
+                #     if success:
+                #         audio_segments.append(AudioSegment.from_file(io.BytesIO(content_or_message), format='mp3')) # If the API call was successful, convert the audio content to a segment and add it to the list
+                #     else:
+                #         st.error(content_or_message) # If the API call failed, display an error message and stop processing further chunks
+                #         break
+                
+                # # After processing all chunks, check if there are any audio segments collected
+                # if audio_segments:
+                #     final_audio = concatenate_audio_segments(audio_segments) # Concatenate all audio segments into one final audio file
+                #     final_audio_file = io.BytesIO() # Create an in-memory file-like object to hold the concatenated audio
+                #     final_audio.export(final_audio_file, format='mp3')
+                #     final_audio_file.seek(0) # Reset the file pointer to the beginning of the file-like object
+                #     st.audio(final_audio_file, format='audio/mpeg') # Stream the final audio directly in the app, allowing the user to play and download it
+                
+                # # If no audio segments were created (all API calls failed), display error message
+                # else:
+                #     st.error("Failed to generate all required audio. Please try again later.")
         else:
-            # Display error message if API key or text input is missing
-            st.error("Please ensure you have entered an API key and text.")
+            st.error("Please ensure you have entered an API key and text.") # Display error message if API key or text input is missing
     else:
-        # Placeholder for any additional instructions or UI elements when the button has not been clicked
-        pass
+        pass # Placeholder for any additional instructions or UI elements when the button has not been clicked
 
 # Note: This conditional checks if this script is being run directly by Python or being imported as a module into another script
 # Commonly used to place script execution code (tests, command-line processing) which should only occur when the script is not being imported as a module elsewhere
