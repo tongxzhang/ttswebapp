@@ -71,7 +71,7 @@ def main():
         costs = calculate_costs(text_length, rates)
         model_choices = {
             f'Standard, for most use cases (${costs["Standard"]})': 'tts-1',
-            f'HD, studio quality high definition (${costs["HD"]})': 'tts-1-hd'
+            f'HD, for studio quality (${costs["HD"]})': 'tts-1-hd'
         }
         return model_choices
 
