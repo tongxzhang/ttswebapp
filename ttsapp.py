@@ -39,8 +39,8 @@ def generate_audio(api_key, text, voice, model):
 # Main function to run the Streamlit app, setting up the UI and managing user interactions
 def main():
     # Set up the Streamlit app title and input fields
-    st.title('TTS with Tong')
-    st.markdown("Please enter your OpenAI API key*, text for speech synthesis, <a href='https://platform.openai.com/docs/guides/text-to-speech/voice-options' target='_blank'>desired voice</a>, then click to generate audio :)", unsafe_allow_html=True)
+    st.title('Text to Speech Converter')
+    st.markdown("Please enter your OpenAI API key*, text for speech synthesis, [desired voice](https://platform.openai.com/docs/guides/text-to-speech/voice-options), then click to generate audio :)")
 
     # Create input fields for API key, text, character counter, and voice selection
     api_key = st.text_input("OpenAI API key:", type="password")
@@ -106,6 +106,6 @@ def main():
 if __name__ == "__main__":
     main()  # Call the main function to execute primary functionality of the script
 
-st.markdown("*We ask for this because I can't afford to pay for everyone's usage just yet. Create your keys <a href='https://platform.openai.com/api-keys' target='_blank'>here</a>, and revoke them when you're done to be extra safe.", unsafe_allow_html=True)
-st.markdown("Created by <a href='https://linktr.ee/tongzhang' target='_blank'>Tong Zhang</a> © 2024", unsafe_allow_html=True)
+st.markdown("*We ask for this because sadly I can't afford to pay for everyone's usage yet. Create your keys [here](https://platform.openai.com/api-keys) and revoke them when you're done to be extra safe.", unsafe_allow_html=True)
+st.markdown("Created by [Tong Zhang](https://linktr.ee/tongzhang) © 2024")
 # streamlit run ttsapp.py # Run locally
