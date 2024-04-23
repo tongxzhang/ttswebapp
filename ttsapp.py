@@ -40,7 +40,7 @@ def generate_audio(api_key, text, voice, model):
 def main():
     # Set up the Streamlit app title and input fields
     st.title('TTS with Tong')
-    st.markdown("Please enter your OpenAI API key, text for speech synthesis, <a href='https://platform.openai.com/docs/guides/text-to-speech/voice-options' target='_blank'>desired voice</a>, then click to generate audio :)", unsafe_allow_html=True)
+    st.markdown("Please enter your OpenAI API key*, text for speech synthesis, <a href='https://platform.openai.com/docs/guides/text-to-speech/voice-options' target='_blank'>desired voice</a>, then click to generate audio :)", unsafe_allow_html=True)
 
     # Create input fields for API key, text, character counter, and voice selection
     api_key = st.text_input("OpenAI API key:", type="password")
@@ -51,10 +51,34 @@ def main():
     
     voice = st.selectbox("Chosen voice:", VOICES)
     
+    # Rates per 1000 characters for each quality model
+    rates = {
+        'Standard': 0.015,  # $0.015 per 1000 characters
+        'HD': 0.03  # $0.03 per 1000 characters
+    }
+
+    # Function to calculate costs based on text length
+    def calculate_costs(text_length, rates):
+        costs = {}
+        for model, rate in rates.items():
+            cost = (text_length / 1000) * rate
+            rounded_cost = round(cost, 3)  # Round to nearest $0.001
+            costs[model] = rounded_cost
+        return costs
+
+    # Function to update model choices with dynamic costs
+    def update_model_choices(text_length):
+        costs = calculate_costs(text_length, rates)
+        model_choices = {
+            f'Standard, for most use cases (${costs["Standard"]})': 'tts-1',
+            f'HD, studio quality high definition (${costs["HD"]})': 'tts-1-hd'
+        }
+        return model_choices
+
     # Define a dictionary to map friendly labels to API model identifiers
-    model_choices = {'Standard, for most use cases ($0.015/1000 characters)': 'tts-1', 'Studio quality high definition ($0.03/1000 characters)': 'tts-1-hd'}
+    model_choices = update_model_choices(len(user_input))
     # Update the Streamlit radio button for model choice to use the dictionary keys
-    model_label = st.radio("Chosen quality:", options=list(model_choices.keys()))
+    model_label = st.radio("Chosen quality and estimated cost:", options=list(model_choices.keys()))
     # Use the dictionary to get the corresponding model identifier in the API call
     model_choice = model_choices[model_label]
 
@@ -82,5 +106,6 @@ def main():
 if __name__ == "__main__":
     main()  # Call the main function to execute primary functionality of the script
 
-# st.markdown("Created by Tong Zhang © 2024")
+st.markdown("*We ask for this because I can't afford to pay for everyone's usage just yet. Create your keys <a href='https://platform.openai.com/api-keys' target='_blank'>here</a>, and revoke them when you're done to be extra safe.", unsafe_allow_html=True)
+st.markdown("Created by <a href='https://linktr.ee/tongzhang' target='_blank'>Tong Zhang</a> © 2024", unsafe_allow_html=True)
 # streamlit run ttsapp.py # Run locally
