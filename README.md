@@ -1,1 +1,1 @@
-Text-to-speech webapp hosted at https://converttexttospeech.streamlit.app/
+Text to speech converter https://converttexttospeech.streamlit.app
